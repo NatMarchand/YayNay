@@ -1,0 +1,97 @@
+name: $(BuildNumber)
+
+variables:
+  Version.MajorMinor: 0.0
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+    Version.Revision: $[variables['System.PullRequest.PullRequestId']]
+    Version.Full: $[format('0.0.{1}', variables['Version.MajorMinor'], variables['Version.Revision'])]
+    BuildNumber: $[format('PR-{0}', variables['System.PullRequest.PullRequestId'])]
+  ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+    Version.Revision: $[counter(format('{0}-{1}', variables['Build.SourceBranchName'], variables['Version.MajorMinor']), 0)]
+    Version.Full: $[format('{0}.{1}', variables['Version.MajorMinor'], variables['Version.Revision'])]
+    BuildNumber: $[format('{0}-{1}', variables['Build.SourceBranchName'], variables['Version.Full'])]
+
+trigger:
+- master
+- develop
+- feature/*
+- task/*
+- hotfix/*
+- release/*
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - feature/*
+    - task/*
+    - hotfix/*
+
+stages:
+  - stage: build
+    displayName: 'Build'
+    pool:
+      vmImage: 'windows-latest'
+    jobs:
+    - job: dotnet
+      displayName: 'Dotnet Build'
+      workspace:
+        clean: all
+      variables:
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        buildConfiguration: 'Release'
+        runtime: 'win-x64'
+        solution: 'YayNay.sln'
+        NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+      steps:
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk'
+        inputs:
+          packageType: sdk
+          version: 3.1.x
+          includePreviewVersions: true
+      - task: CacheBeta@0
+        displayName: 'Cache NuGet packages'
+        inputs:
+          key: nuget | **/*.csproj | **/*.props,!**/bin/**,!**/obj/**
+          path: $(NUGET_PACKAGES)
+      - task: NuGetAuthenticate@0
+        displayName: 'Use NuGet feeds'
+      - task: DotNetCoreCLI@2
+        displayName: 'Restore NuGet packages'
+        inputs:
+          command: custom
+          projects: '$(solution)'
+          custom: 'restore'
+          arguments: '--runtime $(runtime) --verbosity normal --packages $(NUGET_PACKAGES) --ignore-failed-sources -p:EnableDefaultItems=false -p:Version=$(Version.Full)'
+      - task: DotNetCoreCLI@2
+        displayName: 'Build projects'
+        inputs:
+          command: build
+          projects: '**/*.csproj'
+          arguments: '--no-restore --configuration $(buildConfiguration) --runtime $(runtime) -p:BuildInParallel=false -p:Version=$(Version.Full)'
+      - task: DotNetCoreCLI@2
+        displayName: 'Run tests'
+        inputs:
+          command: test
+          arguments: '--no-build --filter "UnitTests|IntegrationTests" --configuration $(buildConfiguration) -m:1 -p:CollectCoverage=true -p:CoverletOutput="$(Agent.TempDirectory)\\" -p:MergeWith="$(Agent.TempDirectory)\coverage.json" -p:CoverletOutputFormat="json%2copencover%2ccobertura"'
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish code coverage'
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: '$(Agent.TempDirectory)\coverage.cobertura.xml'
+      - task: DotNetCoreCLI@2
+        displayName: 'Package apps'
+        inputs:
+          command: publish
+          publishWebProjects: false
+          zipAfterPublish: true
+          modifyOutputPath: true
+          projects: src/**/*App.csproj
+          arguments: '--no-build --configuration $(buildConfiguration) --runtime $(runtime) --output $(Build.ArtifactStagingDirectory) --self-contained true -p:PublishSingleFile=true -p:Version=$(Version.Full)'
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish apps artifact'
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: back

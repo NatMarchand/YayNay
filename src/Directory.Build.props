@@ -1,0 +1,54 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)\..\Configuration.props"/>
+  <ItemGroup>
+    <NullableWarnings Include="CS8597"/>
+    <NullableWarnings Include="CS8600"/>
+    <NullableWarnings Include="CS8601"/>
+    <NullableWarnings Include="CS8602"/>
+    <NullableWarnings Include="CS8603"/>
+    <NullableWarnings Include="CS8604"/>
+    <NullableWarnings Include="CS8605"/>
+    <NullableWarnings Include="CS8606"/>
+    <NullableWarnings Include="CS8607"/>
+    <NullableWarnings Include="CS8608"/>
+    <NullableWarnings Include="CS8609"/>
+    <NullableWarnings Include="CS8610"/>
+    <NullableWarnings Include="CS8611"/>
+    <NullableWarnings Include="CS8612"/>
+    <NullableWarnings Include="CS8613"/>
+    <NullableWarnings Include="CS8614"/>
+    <NullableWarnings Include="CS8615"/>
+    <NullableWarnings Include="CS8616"/>
+    <NullableWarnings Include="CS8617"/>
+    <NullableWarnings Include="CS8618"/>
+    <NullableWarnings Include="CS8619"/>
+    <NullableWarnings Include="CS8620"/>
+    <NullableWarnings Include="CS8621"/>
+    <NullableWarnings Include="CS8622"/>
+    <NullableWarnings Include="CS8624"/>
+    <NullableWarnings Include="CS8625"/>
+    <NullableWarnings Include="CS8626"/>
+    <NullableWarnings Include="CS8629"/>
+    <NullableWarnings Include="CS8631"/>
+    <NullableWarnings Include="CS8632"/>
+    <NullableWarnings Include="CS8633"/>
+    <NullableWarnings Include="CS8634"/>
+    <NullableWarnings Include="CS8638"/>
+    <NullableWarnings Include="CS8643"/>
+    <NullableWarnings Include="CS8644"/>
+    <NullableWarnings Include="CS8645"/>
+    <NullableWarnings Include="CS8653"/>
+    <NullableWarnings Include="CS8654"/>
+    <NullableWarnings Include="CS8655"/>
+  </ItemGroup>
+  <PropertyGroup>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <DebugType>embedded</DebugType>
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
+    <Nullable>$(NullableContextOptions)</Nullable>
+    <WarningsAsErrors>$(WarningsAsErrors);@(NullableWarnings)</WarningsAsErrors>
+  </PropertyGroup>
+</Project>
