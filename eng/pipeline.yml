@@ -1,6 +1,7 @@
 name: $(BuildNumber)
 
 variables:
+  TerraformVersion: 0.12.21
   Version.MajorMinor: 0.0
   ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
     Version.Revision: $[variables['System.PullRequest.PullRequestId']]
@@ -27,11 +28,12 @@ pr:
     - task/*
     - hotfix/*
 
+pool:
+  vmImage: 'windows-latest'
+
 stages:
   - stage: build
     displayName: 'Build'
-    pool:
-      vmImage: 'windows-latest'
     jobs:
     - job: dotnet
       displayName: 'Dotnet Build'
@@ -95,3 +97,117 @@ stages:
         inputs:
           targetPath: '$(Build.ArtifactStagingDirectory)'
           artifact: back
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish terraform templates artifact'
+        inputs:
+          targetPath: '$(System.DefaultWorkingDirectory)/eng/terraform'
+          artifact: terraform
+  - stage: dev
+    displayName: 'Development deployment'
+    dependsOn:
+      - build
+    condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables.OverrideDeployment, true)))
+    variables:
+      EnvironmentServiceArm: 'Azure MVP'
+      BackendServiceArm: 'Azure MVP'
+      BackendResourceGroup: terraform
+      BackendStorageAccount: natmarchandtfstate
+      BackendContainer: yaynay
+      BackendKey: dev.tfstate
+      TF_IN_AUTOMATION: 1
+    jobs:
+      - deployment: planDev
+        displayName: 'Plan Dev deployment'
+        environment: 'YayNay Dev'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - download: current
+                artifact: terraform
+                displayName: 'Download terraform templates'
+
+              - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+                displayName: 'Install Terraform'
+                inputs:
+                  terraformVersion: $(TerraformVersion)
+
+              - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+                displayName: 'Terraform : init'
+                inputs:
+                  workingDirectory: '$(Pipeline.Workspace)/terraform'
+                  commandOptions: '-input=false'
+                  backendServiceArm: ${{variables.BackendServiceArm}}
+                  backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+                  backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+                  backendAzureRmContainerName: ${{variables.BackendContainer}}
+                  backendAzureRmKey: ${{variables.BackendKey}}
+
+              - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+                displayName: 'Terraform : plan'
+                inputs:
+                  command: plan
+                  workingDirectory: '$(Pipeline.Workspace)/terraform'
+                  commandOptions: '-out=tfplan -input=false -var-file=dev.tfvars'
+                  environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
+                  backendServiceArm: ${{variables.BackendServiceArm}}
+                  backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+                  backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+                  backendAzureRmContainerName: ${{variables.BackendContainer}}
+                  backendAzureRmKey: ${{variables.BackendKey}}
+
+              - task: PublishPipelineArtifact@1
+                displayName: 'Publish terraform plan'
+                inputs:
+                  targetPath: '$(Pipeline.Workspace)/terraform/tfplan'
+                  artifact: terraform-dev
+                condition: succeededOrFailed()
+
+      - deployment: applyDev
+        displayName: 'Execute Dev deployment'
+        environment: 'YayNay Dev'
+        dependsOn:
+          - planDev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - download: current
+                artifact: terraform
+                displayName: 'Download terraform templates'
+
+              - task: DownloadPipelineArtifact@2
+                displayName: 'Download terraform plan'
+                inputs:
+                  artifact: terraform-dev
+                  path: $(Pipeline.Workspace)/terraform
+
+              - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+                displayName: 'Install Terraform'
+                inputs:
+                  terraformVersion: $(TerraformVersion)
+
+              - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+                displayName: 'Terraform : init'
+                inputs:
+                  workingDirectory: '$(Pipeline.Workspace)/terraform'
+                  commandOptions: '-input=false'
+                  backendServiceArm: ${{variables.BackendServiceArm}}
+                  backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+                  backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+                  backendAzureRmContainerName: ${{variables.BackendContainer}}
+                  backendAzureRmKey: ${{variables.BackendKey}}
+
+              - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+                displayName: 'Terraform : validate and apply'
+                inputs:
+                  command: apply
+                  workingDirectory: '$(Pipeline.Workspace)/terraform'
+                  commandOptions: '-input=false tfplan'
+                  environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
+                  backendServiceArm: ${{variables.BackendServiceArm}}
+                  backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+                  backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+                  backendAzureRmContainerName: ${{variables.BackendContainer}}
+                  backendAzureRmKey: ${{variables.BackendKey}}
+
