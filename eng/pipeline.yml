@@ -47,6 +47,9 @@ stages:
         solution: 'YayNay.sln'
         NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
       steps:
+      - checkout: self
+        submodules: true
+        persistCredentials: true
       - task: UseDotNet@2
         displayName: 'Use .NET Core sdk'
         inputs:
@@ -102,6 +105,11 @@ stages:
         inputs:
           targetPath: '$(System.DefaultWorkingDirectory)/eng/terraform'
           artifact: terraform
+      - script: |
+          git tag "v$(Version.Full)"
+          git push origin "v$(Version.Full)"
+        displayName: Tag sources
+        condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables.OverrideDeployment, true)))
   - stage: dev
     displayName: 'Development deployment'
     dependsOn:
