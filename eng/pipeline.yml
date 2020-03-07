@@ -1,7 +1,7 @@
 name: $(BuildNumber)
 
 variables:
-  TerraformVersion: 0.12.21
+  TerraformVersion: 0.12.23
   Version.MajorMinor: 0.0
   ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
     Version.Revision: $[variables['System.PullRequest.PullRequestId']]
@@ -11,6 +11,8 @@ variables:
     Version.Revision: $[counter(format('{0}-{1}', variables['Build.SourceBranchName'], variables['Version.MajorMinor']), 0)]
     Version.Full: $[format('{0}.{1}', variables['Version.MajorMinor'], variables['Version.Revision'])]
     BuildNumber: $[format('{0}-{1}', variables['Build.SourceBranchName'], variables['Version.Full'])]
+  TF_IN_AUTOMATION: 1
+  TF_INPUT: 0
 
 trigger:
 - master
@@ -43,26 +45,36 @@ stages:
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
         buildConfiguration: 'Release'
-        runtime: 'win-x64'
+        runtime: 'win10-x64'
         solution: 'YayNay.sln'
         NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+        EnvironmentServiceArm: 'Azure MVP'
+        BackendServiceArm: 'Azure MVP'
+        BackendResourceGroup: terraform
+        BackendStorageAccount: natmarchandtfstate
+        BackendContainer: yaynay
+        BackendKey: dev.tfstate
       steps:
       - checkout: self
         submodules: true
         persistCredentials: true
+
       - task: UseDotNet@2
         displayName: 'Use .NET Core sdk'
         inputs:
           packageType: sdk
-          version: 3.1.x
-          includePreviewVersions: true
+          version: 3.1.101
+          includePreviewVersions: false
+
       - task: CacheBeta@0
         displayName: 'Cache NuGet packages'
         inputs:
           key: nuget | **/*.csproj | **/*.props,!**/bin/**,!**/obj/**
           path: $(NUGET_PACKAGES)
+
       - task: NuGetAuthenticate@0
         displayName: 'Use NuGet feeds'
+
       - task: DotNetCoreCLI@2
         displayName: 'Restore NuGet packages'
         inputs:
@@ -70,22 +82,34 @@ stages:
           projects: '$(solution)'
           custom: 'restore'
           arguments: '--runtime $(runtime) --verbosity normal --packages $(NUGET_PACKAGES) --ignore-failed-sources -p:EnableDefaultItems=false -p:Version=$(Version.Full)'
+
       - task: DotNetCoreCLI@2
         displayName: 'Build projects'
         inputs:
           command: build
           projects: '**/*.csproj'
           arguments: '--no-restore --configuration $(buildConfiguration) --runtime $(runtime) -p:BuildInParallel=false -p:Version=$(Version.Full)'
+
       - task: DotNetCoreCLI@2
-        displayName: 'Run tests'
+        displayName: 'Run unit tests'
         inputs:
           command: test
-          arguments: '--no-build --filter "UnitTests|IntegrationTests" --configuration $(buildConfiguration) -m:1 -p:CollectCoverage=true -p:CoverletOutput="$(Agent.TempDirectory)\\" -p:MergeWith="$(Agent.TempDirectory)\coverage.json" -p:CoverletOutputFormat="json%2copencover%2ccobertura"'
+          testRunTitle: 'Dotnet unit tests'
+          arguments: '--no-build --filter "UnitTests" --configuration $(buildConfiguration) -m:1 -p:CollectCoverage=true -p:CoverletOutput="$(Agent.TempDirectory)\\" -p:MergeWith="$(Agent.TempDirectory)\coverage.json" -p:CoverletOutputFormat="json%2copencover%2ccobertura"'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Run integration tests'
+        inputs:
+          command: test
+          testRunTitle: 'Dotnet integration tests'
+          arguments: '--no-build --filter "IntegrationTests" --configuration $(buildConfiguration) -m:1 -p:CollectCoverage=true -p:CoverletOutput="$(Agent.TempDirectory)\\" -p:MergeWith="$(Agent.TempDirectory)\coverage.json" -p:CoverletOutputFormat="json%2copencover%2ccobertura"'
+
       - task: PublishCodeCoverageResults@1
         displayName: 'Publish code coverage'
         inputs:
           codeCoverageTool: 'Cobertura'
           summaryFileLocation: '$(Agent.TempDirectory)\coverage.cobertura.xml'
+
       - task: DotNetCoreCLI@2
         displayName: 'Package apps'
         inputs:
@@ -94,17 +118,57 @@ stages:
           zipAfterPublish: true
           modifyOutputPath: true
           projects: src/**/*App.csproj
-          arguments: '--no-build --configuration $(buildConfiguration) --runtime $(runtime) --output $(Build.ArtifactStagingDirectory) --self-contained true -p:PublishSingleFile=true -p:Version=$(Version.Full)'
+          arguments: '--no-build --configuration $(buildConfiguration) --runtime $(runtime) --output $(Build.ArtifactStagingDirectory) -p:TargetLatestRuntimePatch=true --self-contained true -p:Version=$(Version.Full)'
+      
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+        displayName: 'Install Terraform'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          terraformVersion: $(TerraformVersion)
+
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+        displayName: 'Terraform : init'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          workingDirectory: '$(Pipeline.Workspace)/terraform'
+          backendServiceArm: ${{variables.BackendServiceArm}}
+          backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+          backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+          backendAzureRmContainerName: ${{variables.BackendContainer}}
+          backendAzureRmKey: ${{variables.BackendKey}}
+
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+        displayName: 'Terraform : plan'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          command: plan
+          workingDirectory: '$(Pipeline.Workspace)/terraform'
+          commandOptions: '-out=tfplan -var-file=dev.tfvars'
+          environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
+          backendServiceArm: ${{variables.BackendServiceArm}}
+          backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+          backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+          backendAzureRmContainerName: ${{variables.BackendContainer}}
+          backendAzureRmKey: ${{variables.BackendKey}}
+
       - task: PublishPipelineArtifact@1
         displayName: 'Publish apps artifact'
         inputs:
           targetPath: '$(Build.ArtifactStagingDirectory)'
           artifact: back
+
       - task: PublishPipelineArtifact@1
         displayName: 'Publish terraform templates artifact'
         inputs:
           targetPath: '$(System.DefaultWorkingDirectory)/eng/terraform'
           artifact: terraform
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish smoke tests artifact'
+        inputs:
+          targetPath: '$(System.DefaultWorkingDirectory)/tests/smoke'
+          artifact: smoketests
+
       - script: |
           git tag "v$(Version.Full)"
           git push origin "v$(Version.Full)"
@@ -122,7 +186,6 @@ stages:
       BackendStorageAccount: natmarchandtfstate
       BackendContainer: yaynay
       BackendKey: dev.tfstate
-      TF_IN_AUTOMATION: 1
     jobs:
       - deployment: planDev
         displayName: 'Plan Dev deployment'
@@ -144,7 +207,6 @@ stages:
                 displayName: 'Terraform : init'
                 inputs:
                   workingDirectory: '$(Pipeline.Workspace)/terraform'
-                  commandOptions: '-input=false'
                   backendServiceArm: ${{variables.BackendServiceArm}}
                   backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
                   backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
@@ -156,7 +218,7 @@ stages:
                 inputs:
                   command: plan
                   workingDirectory: '$(Pipeline.Workspace)/terraform'
-                  commandOptions: '-out=tfplan -input=false -var-file=dev.tfvars'
+                  commandOptions: '-out=tfplan -var-file=dev.tfvars'
                   environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
                   backendServiceArm: ${{variables.BackendServiceArm}}
                   backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
@@ -199,7 +261,6 @@ stages:
                 displayName: 'Terraform : init'
                 inputs:
                   workingDirectory: '$(Pipeline.Workspace)/terraform'
-                  commandOptions: '-input=false'
                   backendServiceArm: ${{variables.BackendServiceArm}}
                   backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
                   backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
@@ -207,11 +268,12 @@ stages:
                   backendAzureRmKey: ${{variables.BackendKey}}
 
               - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+                name: terraformApply
                 displayName: 'Terraform : validate and apply'
                 inputs:
                   command: apply
                   workingDirectory: '$(Pipeline.Workspace)/terraform'
-                  commandOptions: '-input=false tfplan'
+                  commandOptions: 'tfplan'
                   environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
                   backendServiceArm: ${{variables.BackendServiceArm}}
                   backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
@@ -219,3 +281,56 @@ stages:
                   backendAzureRmContainerName: ${{variables.BackendContainer}}
                   backendAzureRmKey: ${{variables.BackendKey}}
 
+              - powershell: |
+                  $terraformOutput = Get-Content "$(terraformApply.jsonOutputVariablesPath)" | ConvertFrom-Json
+                  $terraformOutput | Get-Member -MemberType NoteProperty | % { $o = $terraformOutput.($_.Name); Write-Host "##vso[task.setvariable variable=$($_.Name);isoutput=true;issecret=$($o.sensitive)]$($o.value)" }
+                name: terraformOutput
+                displayName: Read terraform outputs
+
+              - download: current
+                artifact: back
+                displayName: 'Download binaries'
+
+              - task: AzureRmWebAppDeployment@4
+                displayName: 'Deploy YayNay.ApiApp'
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: ${{variables.EnvironmentServiceArm}}
+                  appType: 'webApp'
+                  WebAppName: '$(terraformOutput.apiapp_name)'
+                  packageForLinux: '$(Pipeline.Workspace)/back/YayNay.ApiApp.zip'
+
+              - download: current
+                artifact: smoketests
+                displayName: 'Download smoke tests'
+
+              - task: UseNode@1
+                displayName: 'Use Node'
+                inputs:
+                  checkLatest: true
+
+              - task: Npm@1
+                displayName: 'Install Newman'
+                inputs:
+                  command: custom
+                  customCommand: install -g newman newman-reporter-htmlextra
+                  workingDir: '$(Pipeline.Workspace)/smoketests'
+                  verbose: false
+
+              - script: newman run smoketests.postman_collection.json -r "cli,junit,htmlextra" --global-var "apiAppHostName=$(terraformOutput.apiapp_hostname)" --disable-unicode --reporter-htmlextra-export reports/smoketests.html --reporter-junit-export reports/smoketests.xml
+                displayName: 'Run smoke tests'
+                workingDirectory: '$(Pipeline.Workspace)/smoketests'
+                continueOnError: true
+
+              - task: PublishPipelineArtifact@1
+                displayName: Publish smoke tests report as artifact
+                inputs:
+                  artifact: 'Dev Deployment - Smoke Tests'
+                  targetPath: $(Pipeline.Workspace)/smoketests/reports/smoketests.html
+
+              - task: PublishTestResults@2
+                displayName: 'Publish smoke tests results'
+                inputs:
+                  testResultsFiles: smoketests.xml
+                  searchFolder: '$(Pipeline.Workspace)/smoketests/reports'
+                  testRunTitle: 'Dev Deployment - Smoke tests'

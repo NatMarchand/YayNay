@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
+using NatMarchand.YayNay.Core.Domain.Events;
+using NatMarchand.YayNay.Core.Infrastructure.Events;
 
 namespace NatMarchand.YayNay.ApiApp
 {
@@ -10,6 +13,10 @@ namespace NatMarchand.YayNay.ApiApp
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<RequestSessionCommandHandler>();
+            services.AddTransient<EventDispatcher>();
+            services.AddTransient<IEventProcessor<SessionRequested>, ProjectSessionRequested>();
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

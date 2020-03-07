@@ -8,4 +8,9 @@
       <ProjectReference Include="..\YayNay.Core.Domain\YayNay.Core.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.2" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.2" />
+    </ItemGroup>
+
 </Project>

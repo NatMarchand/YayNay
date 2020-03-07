@@ -8,4 +8,9 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\YayNay.Core.Domain\YayNay.Core.Domain.csproj" />
+      <ProjectReference Include="..\YayNay.Core.Infrastructure\YayNay.Core.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>

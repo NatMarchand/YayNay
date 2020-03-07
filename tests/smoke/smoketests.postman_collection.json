@@ -1,0 +1,92 @@
+{
+	"info": {
+		"_postman_id": "391dc51e-9d75-48d9-bd61-ce74425c0594",
+		"name": "Smoke tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Swagger UI",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "60bf0947-acf4-40ff-a3ab-b1fe1dccd4e8",
+						"exec": [
+							"pm.test(\"Get Swagger UI : Check response time\", function(){",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"pm.test(\"Get Swagger UI : Check status code\", function(){",
+							"    pm.response.to.be.ok;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{apiAppHostName}}/swagger/index.html",
+					"protocol": "https",
+					"host": [
+						"{{apiAppHostName}}"
+					],
+					"path": [
+						"swagger",
+						"index.html"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Swagger JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "85b1569c-e350-4da1-b1fb-7d1952713030",
+						"exec": [
+							"pm.test(\"Get Swagger JSON: Check response time\", function(){",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"pm.test(\"Get Swagger JSON: Check status code\", function(){",
+							"    pm.response.to.be.ok;",
+							"});",
+							"pm.test(\"Get Swagger JSON: Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json;charset=utf-8\");",
+							"});",
+							"pm.test(\"Get Swagger JSON: Check OpenAPI metadata\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.response.to.have.jsonBody(\"openapi\", \"3.0.1\");",
+							"    pm.response.to.have.jsonBody(\"info.title\", \"YayNay API\");",
+							"    pm.response.to.have.jsonBody(\"info.version\", \"v1\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{apiAppHostName}}/swagger/v1/swagger.json",
+					"protocol": "https",
+					"host": [
+						"{{apiAppHostName}}"
+					],
+					"path": [
+						"swagger",
+						"v1",
+						"swagger.json"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
