@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
-using NatMarchand.YayNay.Core.Infrastructure.Events;
+using NatMarchand.YayNay.Core.Domain.Queries;
+using NatMarchand.YayNay.Core.Domain.Queries.Session;
 
-namespace NatMarchand.YayNay.IntegrationTests
+namespace NatMarchand.YayNay.Tests.Common.Fakes
 {
     public class FakeSessionProjectionStore : ISessionProjectionStore
     {
@@ -13,6 +16,11 @@ namespace NatMarchand.YayNay.IntegrationTests
         public FakeSessionProjectionStore()
         {
             _projections = new Dictionary<SessionId, SessionProjection>();
+        }
+
+        public Task<PagedList<SessionProjection>> GetSessionsAsync(SessionStatus status)
+        {
+            return Task.FromResult(new PagedList<SessionProjection>(_projections.Values.Where(s => s.Status == status).ToList(), new Paging(0, 1)));
         }
 
         public Task MergeProjectionAsync(SessionProjection projection)

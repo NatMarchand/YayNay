@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -26,18 +26,26 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YayNay.ApiApp\YayNay.ApiApp.csproj" />
-    <ProjectReference Include="..\YayNay.Core.UnitTests\YayNay.Core.UnitTests.csproj" />
+    <ProjectReference Include="..\YayNay.Tests.Common\YayNay.Tests.Common.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <None Include="**/*.feature" />
-    <Compile Update="RequestSession.feature.cs">
+
+    <None Include="**\*.feature" />
+    <Compile Update="Session\GetRequestedSessions.bindings.cs">
+      <DependentUpon>GetRequestedSessions.feature</DependentUpon>
+    </Compile>
+    <Compile Update="Session\GetRequestedSessions.feature.cs">
+      <DependentUpon>GetRequestedSessions.feature</DependentUpon>
+    </Compile>
+    <Compile Update="Session\RequestSession.bindings.cs">
       <DependentUpon>RequestSession.feature</DependentUpon>
     </Compile>
-    <Compile Update="RequestSession.bindings.cs">
+    <Compile Update="Session\RequestSession.feature.cs">
       <DependentUpon>RequestSession.feature</DependentUpon>
     </Compile>
-    
+
+
   </ItemGroup>
 
 </Project>

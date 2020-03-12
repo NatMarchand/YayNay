@@ -5,9 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NatMarchand.YayNay.ApiApp.Identity;
 using NatMarchand.YayNay.Core.Domain;
 using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.Queries;
+using NatMarchand.YayNay.Core.Domain.Queries.Session;
 using NatMarchand.YayNay.Core.Infrastructure.Events;
 
 namespace NatMarchand.YayNay.ApiApp.Controllers
@@ -23,7 +26,19 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
             _eventDispatcher = eventDispatcher;
         }
 
+        [HttpGet("")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<PagedList<SessionProjection>>> GetSessions([FromQuery][Required] SessionStatus status, [FromServices] SessionQueries sessionQueries)
+        {
+            return await sessionQueries.GetSessionsByStatusAsync(status, User.GetProfile());
+        }
+
         [HttpPost("request")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RequestSessionAsync([FromServices] RequestSessionCommandHandler handler, [FromBody] RequestSessionModel requestSessionModel)
         {
             var command = new RequestSession(
@@ -48,6 +63,7 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
     }
 
 #nullable disable
+
     public class RequestSessionModel
     {
         [Required] public IEnumerable<Guid> Speakers { get; set; }

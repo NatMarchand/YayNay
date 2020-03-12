@@ -119,37 +119,6 @@ stages:
           modifyOutputPath: true
           projects: src/**/*App.csproj
           arguments: '--no-build --configuration $(buildConfiguration) --runtime $(runtime) --output $(Build.ArtifactStagingDirectory) -p:TargetLatestRuntimePatch=true --self-contained true -p:Version=$(Version.Full)'
-      
-      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-        displayName: 'Install Terraform'
-        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-        inputs:
-          terraformVersion: $(TerraformVersion)
-
-      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
-        displayName: 'Terraform : init'
-        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-        inputs:
-          workingDirectory: '$(Pipeline.Workspace)/terraform'
-          backendServiceArm: ${{variables.BackendServiceArm}}
-          backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
-          backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
-          backendAzureRmContainerName: ${{variables.BackendContainer}}
-          backendAzureRmKey: ${{variables.BackendKey}}
-
-      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
-        displayName: 'Terraform : plan'
-        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
-        inputs:
-          command: plan
-          workingDirectory: '$(Pipeline.Workspace)/terraform'
-          commandOptions: '-out=tfplan -var-file=dev.tfvars'
-          environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
-          backendServiceArm: ${{variables.BackendServiceArm}}
-          backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
-          backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
-          backendAzureRmContainerName: ${{variables.BackendContainer}}
-          backendAzureRmKey: ${{variables.BackendKey}}
 
       - task: PublishPipelineArtifact@1
         displayName: 'Publish apps artifact'
@@ -168,6 +137,37 @@ stages:
         inputs:
           targetPath: '$(System.DefaultWorkingDirectory)/tests/smoke'
           artifact: smoketests
+
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+        displayName: 'Install Terraform'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          terraformVersion: $(TerraformVersion)
+
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+        displayName: 'Terraform : init'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          workingDirectory: '$(System.DefaultWorkingDirectory)/eng/terraform'
+          backendServiceArm: ${{variables.BackendServiceArm}}
+          backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+          backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+          backendAzureRmContainerName: ${{variables.BackendContainer}}
+          backendAzureRmKey: ${{variables.BackendKey}}
+
+      - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
+        displayName: 'Terraform : plan'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          command: plan
+          workingDirectory: '$(System.DefaultWorkingDirectory)/eng/terraform'
+          commandOptions: '-out=tfplan -var-file=dev.tfvars'
+          environmentServiceNameAzureRM: ${{variables.EnvironmentServiceArm}}
+          backendServiceArm: ${{variables.BackendServiceArm}}
+          backendAzureRmResourceGroupName: ${{variables.BackendResourceGroup}}
+          backendAzureRmStorageAccountName: ${{variables.BackendStorageAccount}}
+          backendAzureRmContainerName: ${{variables.BackendContainer}}
+          backendAzureRmKey: ${{variables.BackendKey}}
 
       - script: |
           git tag "v$(Version.Full)"

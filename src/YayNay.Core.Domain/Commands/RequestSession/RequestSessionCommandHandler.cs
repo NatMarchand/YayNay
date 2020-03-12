@@ -6,18 +6,19 @@ using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
 using NatMarchand.YayNay.Core.Domain.Infrastructure;
+using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
 namespace NatMarchand.YayNay.Core.Domain.Commands.RequestSession
 {
     public class RequestSessionCommandHandler : ICommandHandler<RequestSession>
     {
         private readonly ISessionRepository _sessionRepository;
-        private readonly IPersonQueries _personQueries;
+        private readonly IPersonProjectionStore _personProjectionStore;
 
-        public RequestSessionCommandHandler(ISessionRepository sessionRepository, IPersonQueries personQueries)
+        public RequestSessionCommandHandler(ISessionRepository sessionRepository, IPersonProjectionStore personProjectionStore)
         {
             _sessionRepository = sessionRepository;
-            _personQueries = personQueries;
+            _personProjectionStore = personProjectionStore;
         }
 
         public async Task<(ICommandResult result, IReadOnlyList<IDomainEvent> events)> ExecuteAsync(RequestSession command, CancellationToken cancellationToken = default)
@@ -39,7 +40,7 @@ namespace NatMarchand.YayNay.Core.Domain.Commands.RequestSession
             {
                 var peopleExists = await Task.WhenAll(command.Speakers.Select(async s =>
                 {
-                    var name = await _personQueries.GetPersonNameAsync(s);
+                    var name = await _personProjectionStore.GetNameAsync(s);
                     return (id: s, exists: name != null);
                 }));
 

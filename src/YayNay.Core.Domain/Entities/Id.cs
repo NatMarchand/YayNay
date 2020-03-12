@@ -15,7 +15,7 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
             Value = value;
         }
 
-        public virtual bool Equals(Id other)
+        public virtual bool Equals(Id? other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -30,7 +30,7 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
             return Value.Equals(other.Value);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
             {
@@ -55,12 +55,12 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
             return Value.GetHashCode();
         }
 
-        public static bool operator ==(Id left, Id right)
+        public static bool operator ==(Id? left, Id? right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(Id left, Id right)
+        public static bool operator !=(Id? left, Id? right)
         {
             return !Equals(left, right);
         }

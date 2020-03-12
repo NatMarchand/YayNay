@@ -1,6 +1,5 @@
 ﻿Feature: Request session
   Scenario: Request session with no schedule returns Accepted
-    Given person 00000000-0000-0000-0000-000000000001 named John Doe
     When POST to sessions/request
     And content with type application/json
 """
@@ -63,7 +62,18 @@
     Then status code is BadRequest
     And content matches
 """
-{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"detail":"Speakers are invalid: unknown speakers","traceId":"*","errors":{"Speakers":["00000000-0000-0000-0000-000000000001 is unknown"]}}
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Speakers are invalid: unknown speakers",
+  "traceId": "*",
+  "errors": {
+    "Speakers": [
+      "00000000-0000-0000-0000-000000000001 is unknown"
+    ]
+  }
+}
 """
     And session store is empty
 
@@ -82,7 +92,18 @@
     Then status code is BadRequest
     And content matches
 """
-{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"detail":"Schedule is invalid: Start time cannot be null (Parameter 'startTime').","traceId":"*","errors":{"startTime":["Start time cannot be null (Parameter 'startTime')"]}}
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Schedule is invalid: Start time cannot be null (Parameter 'startTime').",
+  "traceId": "*",
+  "errors": {
+    "startTime": [
+      "Start time cannot be null (Parameter 'startTime')"
+    ]
+  }
+}
 """
     And session store is empty
 
@@ -101,7 +122,18 @@
     Then status code is BadRequest
     And content matches
 """
-{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"detail":"Schedule is invalid: End time cannot be null (Parameter 'endTime').","traceId":"*","errors":{"endTime":["End time cannot be null (Parameter 'endTime')"]}}
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Schedule is invalid: End time cannot be null (Parameter 'endTime').",
+  "traceId": "*",
+  "errors": {
+    "endTime": [
+      "End time cannot be null (Parameter 'endTime')"
+    ]
+  }
+}
 """
     And session store is empty
 
@@ -119,9 +151,20 @@
 }
 """
     Then status code is BadRequest
-    And content matches
+      And content matches
 """
-{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"detail":"Schedule is invalid: End time cannot be before start time (Parameter 'endTime').","traceId":"*","errors":{"endTime":["End time cannot be before start time (Parameter 'endTime')"]}}
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Schedule is invalid: End time cannot be before start time (Parameter 'endTime').",
+  "traceId": "*",
+  "errors": {
+    "endTime": [
+      "End time cannot be before start time (Parameter 'endTime')"
+    ]
+  }
+}
 """
     And session store is empty
 
@@ -134,6 +177,25 @@
     Then status code is BadRequest
     And content matches
 """
-{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"traceId":"*","errors":{"Tags":["The Tags field is required."],"Title":["The Title field is required."],"Speakers":["The Speakers field is required."],"Description":["The Description field is required."]}}
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "traceId": "*",
+  "errors": {
+    "Tags": [
+      "The Tags field is required."
+    ],
+    "Title": [
+      "The Title field is required."
+    ],
+    "Speakers": [
+      "The Speakers field is required."
+    ],
+    "Description": [
+      "The Description field is required."
+    ]
+  }
+}
 """
     And session store is empty

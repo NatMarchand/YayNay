@@ -3,19 +3,19 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Infrastructure;
-using NatMarchand.YayNay.Core.Infrastructure.Events;
-using NatMarchand.YayNay.Core.UnitTests;
+using NatMarchand.YayNay.Core.Domain.Queries.Session;
+using NatMarchand.YayNay.Tests.Common.Fakes;
 using NFluent;
 using TechTalk.SpecFlow;
 using Xunit.Abstractions;
 
 #nullable disable
-namespace NatMarchand.YayNay.IntegrationTests
+namespace NatMarchand.YayNay.IntegrationTests.Session
 {
     [Binding, Scope(Feature = "Request Session")]
     public class RequestSessionBindings : Bindings
     {
-        private Session _session;
+        private Core.Domain.Entities.Session _session;
         private SessionProjection _sessionProjection;
 
         private FakeSessionRepository SessionRepository => Services.GetRequiredService<FakeSessionRepository>();
@@ -36,8 +36,7 @@ namespace NatMarchand.YayNay.IntegrationTests
             services.AddSingleton<FakeSessionProjectionStore>();
             services.AddTransient<ISessionProjectionStore>(p => p.GetRequiredService<FakeSessionProjectionStore>());
 
-            services.AddSingleton<FakePersonProjectionStore>();
-            services.AddTransient<IPersonQueries>(p => p.GetRequiredService<FakePersonProjectionStore>());
+            base.ConfigureTestServices(services);
         }
 
         [Given("person (.+) named (.+)")]

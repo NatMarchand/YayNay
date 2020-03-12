@@ -45,6 +45,7 @@ namespace NatMarchand.YayNay.Core.Domain
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public class ValidationErrors : IReadOnlyDictionary<string, IReadOnlyList<string>>
     {
         private readonly Dictionary<string, List<string>> _errors;

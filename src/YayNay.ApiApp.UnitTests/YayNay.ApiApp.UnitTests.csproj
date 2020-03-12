@@ -21,8 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\YayNay.Core.Domain\YayNay.Core.Domain.csproj" />
-      <ProjectReference Include="..\YayNay.Tests.Common\YayNay.Tests.Common.csproj" />
+        <ProjectReference Include="..\YayNay.ApiApp\YayNay.ApiApp.csproj" />
     </ItemGroup>
-
+    
 </Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="xunit" Version="2.4.1" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\YayNay.Core.Domain\YayNay.Core.Domain.csproj" />
+      <ProjectReference Include="..\YayNay.Core.Infrastructure\YayNay.Core.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

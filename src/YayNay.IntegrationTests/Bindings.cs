@@ -3,12 +3,18 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NatMarchand.YayNay.ApiApp;
+using NatMarchand.YayNay.Core.Domain.Queries.Person;
+using NatMarchand.YayNay.Tests.Common;
+using NatMarchand.YayNay.Tests.Common.Fakes;
 using NFluent;
 using TechTalk.SpecFlow;
 using Xunit.Abstractions;
@@ -18,32 +24,45 @@ namespace NatMarchand.YayNay.IntegrationTests
 {
     public abstract class Bindings : IDisposable
     {
-        private readonly ITestOutputHelper _testOutputHelper;
         private readonly WebApplicationFactory<Startup> _factory;
         private readonly HttpRequestMessage _request;
         private HttpResponseMessage _response;
 
         protected IServiceProvider Services => _factory.Services;
+        protected FakePersonProjectionStore PersonProjectionStore => Services.GetRequiredService<FakePersonProjectionStore>();
 
         protected Bindings(ITestOutputHelper testOutputHelper)
         {
-            _testOutputHelper = testOutputHelper;
             _factory = new WebApplicationFactory<Startup>()
                 .WithWebHostBuilder(builder =>
                 {
                     builder.ConfigureLogging(logging =>
                         {
+                            logging.AddFilter("Microsoft", LogLevel.Warning);
                             logging.SetMinimumLevel(LogLevel.Debug);
-                            logging.AddConsole();
-                            logging.AddDebug();
+
+                            logging.AddProvider(new XUnitLoggerProvider(testOutputHelper));
                         })
-                        .ConfigureTestServices(ConfigureTestServices);
+                        .ConfigureServices(s =>
+                        {
+                            s.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
+                        })
+                        .ConfigureTestServices(ConfigureTestServices)
+                        .ConfigureTestServices(s =>
+                        {
+                            s.Configure<JsonOptions>(o => o.JsonSerializerOptions.WriteIndented = true);
+                        });
                 });
             _request = new HttpRequestMessage();
         }
 
         protected virtual void ConfigureTestServices(IServiceCollection services)
         {
+            services.AddSingleton<FakePersonProjectionStore>();
+            services.AddTransient<IPersonProjectionStore>(p => p.GetRequiredService<FakePersonProjectionStore>());
+
+            services.AddAuthentication(TestAuthenticationHandler.TestScheme)
+                .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(TestAuthenticationHandler.TestScheme, o => { });
         }
 
         [When("(GET|HEAD|POST|PUT|DELETE) to (.+)")]
@@ -51,6 +70,12 @@ namespace NatMarchand.YayNay.IntegrationTests
         {
             _request.Method = new HttpMethod(verb);
             _request.RequestUri = new Uri(uri, UriKind.RelativeOrAbsolute);
+        }
+
+        [When("header ([^ ]+) is (.*)")]
+        public void WhenHeader(string header, string value)
+        {
+            _request.Headers.TryAddWithoutValidation(header, value);
         }
 
         [When("content with type (.+)")]

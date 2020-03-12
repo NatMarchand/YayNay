@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Infrastructure;
 
-namespace NatMarchand.YayNay.Core.UnitTests
+namespace NatMarchand.YayNay.Tests.Common.Fakes
 {
     
     public class FakeSessionRepository : ISessionRepository

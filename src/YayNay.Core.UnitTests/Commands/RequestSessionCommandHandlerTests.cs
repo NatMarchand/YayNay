@@ -4,7 +4,7 @@ using NatMarchand.YayNay.Core.Domain;
 using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
-using NatMarchand.YayNay.IntegrationTests;
+using NatMarchand.YayNay.Tests.Common.Fakes;
 using NFluent;
 using Xunit;
 
