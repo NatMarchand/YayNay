@@ -1,8 +1,7 @@
 ﻿Feature: Get requested sessions
   Scenario: Get requested sessions when admin and no session returns empty list
-    Given an admin
     When GET to sessions?status=Requested
-    And header Authorization is Bearer admintoken
+    And authenticated as an admin
     Then status code is OK
     And content matches
 """
@@ -16,13 +15,12 @@
 """
 
   Scenario: Get requested sessions when admin and some sessions returns list
-    Given an admin
-    And a session entitled Session 1
-    And a session entitled Session 2
-    And a session entitled Session 3
-    And a session entitled Session 4
+    And a session entitled Session 1 with status Requested
+    And a session entitled Session 2 with status Requested
+    And a session entitled Session 3 with status Requested
+    And a session entitled Session 4 with status Requested
     When GET to sessions?status=Requested
-    And header Authorization is Bearer admintoken
+    And authenticated as an admin
     Then status code is OK
     And content matches
 """
@@ -73,9 +71,8 @@
 """
 
   Scenario: Get requested sessions when user returns empty list
-    Given a user
     When GET to sessions?status=Requested
-    And header Authorization is Bearer usertoken
+    And authenticated as a user
     Then status code is OK
     And content matches
 """

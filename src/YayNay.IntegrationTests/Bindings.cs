@@ -58,7 +58,10 @@ namespace NatMarchand.YayNay.IntegrationTests
 
         protected virtual void ConfigureTestServices(IServiceCollection services)
         {
-            services.AddSingleton<FakePersonProjectionStore>();
+            var personProjectionStore = new FakePersonProjectionStore();
+            personProjectionStore.AddPerson(TestAuthenticationHandler.UserPersonId, "John TheUser", false);
+            personProjectionStore.AddPerson(TestAuthenticationHandler.AdminPersonId, "Bob TheAdmin", true);
+            services.AddSingleton(personProjectionStore);
             services.AddTransient<IPersonProjectionStore>(p => p.GetRequiredService<FakePersonProjectionStore>());
 
             services.AddAuthentication(TestAuthenticationHandler.TestScheme)
@@ -78,6 +81,18 @@ namespace NatMarchand.YayNay.IntegrationTests
             _request.Headers.TryAddWithoutValidation(header, value);
         }
 
+        [When("authenticated as an admin")]
+        public void WhenAuthenticatedAsAnAdmin()
+        {
+            _request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {TestAuthenticationHandler.AdminToken}");
+        }
+
+        [When("authenticated as a user")]
+        public void WhenAuthenticatedAsAUser()
+        {
+            _request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {TestAuthenticationHandler.UserToken}");
+        }
+        
         [When("content with type (.+)")]
         public void WhenCallingWithContent(string mimeType, string content)
         {
@@ -95,9 +110,9 @@ namespace NatMarchand.YayNay.IntegrationTests
         }
 
         [Then("status code is (.+)")]
-        public void ThenStatusCodeIs(string expectedStatusCode)
+        public void ThenStatusCodeIs(HttpStatusCode expectedStatusCode)
         {
-            Check.That(_response.StatusCode).IsEqualTo(Enum.Parse<HttpStatusCode>(expectedStatusCode, true));
+            Check.That(_response.StatusCode).IsEqualTo(expectedStatusCode);
         }
 
         [Then("content is")]

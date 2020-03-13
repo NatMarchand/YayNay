@@ -32,6 +32,12 @@
   <ItemGroup>
 
     <None Include="**\*.feature" />
+    <Compile Update="Session\ApproveSession.bindings.cs">
+      <DependentUpon>ApproveSession.feature</DependentUpon>
+    </Compile>
+    <Compile Update="Session\ApproveSession.feature.cs">
+      <DependentUpon>ApproveSession.feature</DependentUpon>
+    </Compile>
     <Compile Update="Session\GetRequestedSessions.bindings.cs">
       <DependentUpon>GetRequestedSessions.feature</DependentUpon>
     </Compile>

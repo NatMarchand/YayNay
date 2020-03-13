@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
 namespace NatMarchand.YayNay.Core.Domain.Entities
 {
@@ -13,7 +14,7 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
         public string Description { get; }
         public IReadOnlyCollection<string> Tags { get; }
         public Schedule? Schedule { get; }
-        public SessionStatus Status { get; }
+        public SessionStatus Status { get; private set; }
 
         public Session(SessionId id, IEnumerable<PersonId> speakers, string title, string description, IEnumerable<string> tags, Schedule? schedule, SessionStatus status)
         {
@@ -24,6 +25,26 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
             Tags = new HashSet<string>(tags, StringComparer.InvariantCultureIgnoreCase);
             Schedule = schedule;
             Status = status;
+        }
+
+        public void Approve(PersonProfile approver, string comment)
+        {
+            if (Status == SessionStatus.Approved)
+            {
+                throw new NotSupportedException($"Session is {Status}");
+            }
+
+            Status = SessionStatus.Approved;
+        }
+
+        public void Reject(PersonProfile approver, string comment)
+        {
+            if (Status == SessionStatus.Rejected)
+            {
+                throw new NotSupportedException($"Session is {Status}");
+            }
+
+            Status = SessionStatus.Rejected;
         }
     }
 

@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using NatMarchand.YayNay.ApiApp.Converters;
 using NatMarchand.YayNay.ApiApp.Identity;
+using NatMarchand.YayNay.Core.Domain.Commands.ApproveSession;
 using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
@@ -25,11 +26,14 @@ namespace NatMarchand.YayNay.ApiApp
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            IdentityModelEventSource.ShowPII = true;
-
             services.AddTransient<RequestSessionCommandHandler>();
+            services.AddTransient<ApproveSessionCommandHandler>();
+            
             services.AddTransient<EventDispatcher>();
-            services.AddTransient<IEventProcessor<SessionRequested>, ProjectSessionRequested>();
+            services.AddTransient<IEventProcessor<SessionRequested>, ProjectSession>();
+            services.AddTransient<IEventProcessor<SessionApproved>, ProjectSession>();
+            services.AddTransient<IEventProcessor<SessionRejected>, ProjectSession>();
+            
             services.AddTransient<ISessionRepository, a>();
             services.AddTransient<IPersonProjectionStore, a>();
             services.AddTransient<ISessionProjectionStore, a>();

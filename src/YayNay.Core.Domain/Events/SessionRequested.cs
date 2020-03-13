@@ -11,4 +11,24 @@ namespace NatMarchand.YayNay.Core.Domain.Events
             Id = id;
         }
     }
+    
+    public class SessionApproved : IDomainEvent
+    {
+        public SessionId Id { get; }
+
+        public SessionApproved(SessionId id)
+        {
+            Id = id;
+        }
+    }
+    
+    public class SessionRejected : IDomainEvent
+    {
+        public SessionId Id { get; }
+
+        public SessionRejected(SessionId id)
+        {
+            Id = id;
+        }
+    }
 }

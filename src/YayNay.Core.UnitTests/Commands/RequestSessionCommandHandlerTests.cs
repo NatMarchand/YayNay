@@ -18,7 +18,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var person = PersonId.New();
             var start = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
             var end = new DateTimeOffset(2020, 1, 1, 1, 0, 0, TimeSpan.Zero);
-            var repository = new FakeSessionRepository();
+            var repository = new FakeSessionStore();
             var sessionQueries = new FakePersonProjectionStore();
             sessionQueries.AddPerson(person, "John Doe");
             var command = new RequestSession(new[] { person }, "super session", "Ca va etre chouette", new[] { "super", "chouette" }, start, end);
@@ -43,7 +43,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var person = PersonId.New();
             var start = default(DateTimeOffset?);
             var end = default(DateTimeOffset?);
-            var repository = new FakeSessionRepository();
+            var repository = new FakeSessionStore();
             var sessionQueries = new FakePersonProjectionStore();
             sessionQueries.AddPerson(person, "John Doe");
             var command = new RequestSession(new[] { person }, "super session", "Ca va etre chouette", new[] { "super", "chouette" }, start, end);
@@ -68,7 +68,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var person = PersonId.New();
             var start = default(DateTimeOffset?);
             var end = default(DateTimeOffset?);
-            var repository = new FakeSessionRepository();
+            var repository = new FakeSessionStore();
             var sessionQueries = new FakePersonProjectionStore();
             var command = new RequestSession(new[] { person }, "super session", "Ca va etre chouette", new[] { "super", "chouette" }, start, end);
             var sut = new RequestSessionCommandHandler(repository, sessionQueries);
@@ -85,7 +85,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
         {
             var start = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
             var end = default(DateTimeOffset?);
-            var repository = new FakeSessionRepository();
+            var repository = new FakeSessionStore();
             var sessionQueries = new FakePersonProjectionStore();
             var command = new RequestSession(new[] { PersonId.New() }, "super session", "Ca va etre chouette", new[] { "super", "chouette" }, start, end);
             var sut = new RequestSessionCommandHandler(repository, sessionQueries);
@@ -101,7 +101,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
         {
             var start = default(DateTimeOffset?);
             var end = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
-            var repository = new FakeSessionRepository();
+            var repository = new FakeSessionStore();
             var sessionQueries = new FakePersonProjectionStore();
             var command = new RequestSession(new[] { PersonId.New() }, "super session", "Ca va etre chouette", new[] { "super", "chouette" }, start, end);
             var sut = new RequestSessionCommandHandler(repository, sessionQueries);

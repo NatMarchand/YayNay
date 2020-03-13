@@ -2,14 +2,20 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters.Xml;
+using Microsoft.AspNetCore.Routing;
 using NatMarchand.YayNay.ApiApp.Identity;
 using NatMarchand.YayNay.Core.Domain;
+using NatMarchand.YayNay.Core.Domain.Commands.ApproveSession;
 using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Queries;
+using NatMarchand.YayNay.Core.Domain.Queries.Person;
 using NatMarchand.YayNay.Core.Domain.Queries.Session;
 using NatMarchand.YayNay.Core.Infrastructure.Events;
 
@@ -30,7 +36,7 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PagedList<SessionProjection>>> GetSessions([FromQuery][Required] SessionStatus status, [FromServices] SessionQueries sessionQueries)
+        public async Task<ActionResult<PagedList<SessionProjection>>> GetSessions([FromQuery] [Required] SessionStatus status, [FromServices] SessionQueries sessionQueries)
         {
             return await sessionQueries.GetSessionsByStatusAsync(status, User.GetProfile());
         }
@@ -39,7 +45,7 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> RequestSessionAsync([FromServices] RequestSessionCommandHandler handler, [FromBody] RequestSessionModel requestSessionModel)
+        public async Task<IActionResult> RequestSessionAsync([FromServices] RequestSessionCommandHandler handler, [FromBody] RequestSessionModel requestSessionModel, CancellationToken cancellationToken)
         {
             var command = new RequestSession(
                 new List<PersonId>(requestSessionModel.Speakers.Select(g => (PersonId) g)),
@@ -49,7 +55,7 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
                 requestSessionModel.StartTime,
                 requestSessionModel.EndTime);
 
-            var (result, events) = await handler.ExecuteAsync(command);
+            var (result, events) = await handler.ExecuteAsync(command, cancellationToken);
             await _eventDispatcher.DispatchAsync(events);
 
             return result switch
@@ -57,12 +63,38 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
                 SuccessCommandResult src => Accepted(),
                 ValidationFailureCommandResult vfcr => this.ValidationProblem(vfcr),
                 FailureCommandResult fcr => this.Problem(fcr),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
+                _ => Problem()
+            };
+        }
+
+        [HttpPost("{sessionId}/approval")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = nameof(UserRight.AcceptSession))]
+        public async Task<IActionResult> ApproveSessionAsync([FromServices] ApproveSessionCommandHandler commandHandler, [FromRoute] [Required] Guid sessionId, [FromBody] [Required] ApproveSessionModel approveSessionModel, CancellationToken cancellationToken)
+        {
+            var command = new ApproveSession(User.GetProfile()!, sessionId, approveSessionModel.IsApproved, approveSessionModel.Comment);
+            var (result, events) = await commandHandler.ExecuteAsync(command, cancellationToken);
+            await _eventDispatcher.DispatchAsync(events);
+            
+            return result switch
+            {
+                SuccessCommandResult scr => Accepted(),
+                NotFoundCommandResult nfcr => Problem(statusCode: StatusCodes.Status404NotFound, detail:nfcr.Reason),
+                ValidationFailureCommandResult vfcr => this.ValidationProblem(vfcr),
+                _ => Problem()
             };
         }
     }
 
 #nullable disable
+
+    public class ApproveSessionModel
+    {
+        [Required] public bool IsApproved { get; set; }
+        [Required] public string Comment { get; set; }
+    }
 
     public class RequestSessionModel
     {

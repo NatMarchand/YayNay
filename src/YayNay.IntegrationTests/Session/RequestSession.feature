@@ -20,9 +20,10 @@
     And end time is
     And tags are
     And speakers are
+    And status is Requested
 
   Scenario: Request session with schedule returns Accepted
-    Given person 00000000-0000-0000-0000-000000000001 named John Doe
+    Given person 10000000-0000-0000-0000-000000000001 named John Doe
     When POST to sessions/request
     And content with type application/json
 """
@@ -45,13 +46,14 @@
     And end time is 2020-03-03T01:00:00.000
     And tags are dotnet, azure
     And speakers are 00000000-0000-0000-0000-000000000001
+    And status is Requested
 
   Scenario: Request session with unknown speaker returns BadRequest
     When POST to sessions/request
     And content with type application/json
 """
 {
-  "speakers": ["00000000-0000-0000-0000-000000000001"],
+  "speakers": ["12345678-0000-0000-0000-000000000001"],
   "tags": ["dotnet","azure"],
   "title": "My awesome session",
   "description": "This session is going to be awe-wait for it-some... Awesome!",
@@ -70,7 +72,7 @@
   "traceId": "*",
   "errors": {
     "Speakers": [
-      "00000000-0000-0000-0000-000000000001 is unknown"
+      "12345678-0000-0000-0000-000000000001 is unknown"
     ]
   }
 }

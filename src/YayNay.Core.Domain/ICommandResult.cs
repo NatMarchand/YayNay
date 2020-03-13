@@ -29,6 +29,22 @@ namespace NatMarchand.YayNay.Core.Domain
         }
     }
 
+    public class DeniedCommandResult : FailureCommandResult
+    {
+        public DeniedCommandResult(string reason) 
+            : base(reason)
+        {
+        }
+    }
+
+    public class NotFoundCommandResult : FailureCommandResult
+    {
+        public NotFoundCommandResult(string reason) 
+            : base(reason)
+        {
+        }
+    }
+
     public class ValidationFailureCommandResult : FailureCommandResult
     {
         public ValidationErrors ValidationErrors { get; }
@@ -66,7 +82,7 @@ namespace NatMarchand.YayNay.Core.Domain
             {
                 _errors[key] = new List<string>();
             }
-            
+
             _errors[key].Add(error);
         }
 

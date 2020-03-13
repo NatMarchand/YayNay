@@ -14,7 +14,7 @@
 						"id": "60bf0947-acf4-40ff-a3ab-b1fe1dccd4e8",
 						"exec": [
 							"pm.test(\"Get Swagger UI : Check response time\", function(){",
-							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
 							"});",
 							"pm.test(\"Get Swagger UI : Check status code\", function(){",
 							"    pm.response.to.be.ok;",
@@ -50,7 +50,7 @@
 						"id": "85b1569c-e350-4da1-b1fb-7d1952713030",
 						"exec": [
 							"pm.test(\"Get Swagger JSON: Check response time\", function(){",
-							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
 							"});",
 							"pm.test(\"Get Swagger JSON: Check status code\", function(){",
 							"    pm.response.to.be.ok;",
