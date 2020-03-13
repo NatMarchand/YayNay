@@ -15,12 +15,20 @@ variables:
   TF_INPUT: 0
 
 trigger:
-- master
-- develop
-- feature/*
-- task/*
-- hotfix/*
-- release/*
+  branches:
+    include:
+    - master
+    - develop
+    - feature/*
+    - task/*
+    - hotfix/*
+    - release/*
+  paths:
+    include:
+    - '*'
+    exclude:
+    - 'docs/'
+    - '*.md'
 
 pr:
   autoCancel: true
@@ -29,6 +37,12 @@ pr:
     - feature/*
     - task/*
     - hotfix/*
+  paths:
+    include:
+    - '*'
+    exclude:
+    - 'docs/'
+    - '*.md'
 
 pool:
   vmImage: 'windows-latest'
