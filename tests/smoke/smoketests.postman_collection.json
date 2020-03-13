@@ -1,10 +1,48 @@
 {
 	"info": {
-		"_postman_id": "391dc51e-9d75-48d9-bd61-ce74425c0594",
+		"_postman_id": "1e97d7db-d10f-46dd-93f0-7ad7c5e1559f",
 		"name": "Smoke tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "Warm-up",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0d28be8b-122e-45a2-bcf3-1978f5a068f8",
+						"exec": [
+							"var iteration = pm.globals.get(\"warmup_iteration\");",
+							"iteration = iteration | 0;",
+							"if(pm.response.responseTime > 500) {",
+							"    iteration++;",
+							"    pm.globals.set(\"warmup_iteration\", iteration);",
+							"    if(iteration < 5) {",
+							"        postman.setNextRequest('Warm-up');",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{apiAppHostName}}/health",
+					"protocol": "https",
+					"host": [
+						"{{apiAppHostName}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Swagger UI",
 			"event": [
