@@ -66,6 +66,8 @@ namespace NatMarchand.YayNay.ApiApp
             });
 
             services.AddApplicationInsightsTelemetry();
+
+            services.AddHealthChecks();
         }
 
         private async Task OnTokenValidated(TokenValidatedContext arg)
@@ -94,6 +96,7 @@ namespace NatMarchand.YayNay.ApiApp
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "YayNay API v1"); });
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/health");
                 endpoints.MapControllers();
                 endpoints.MapGet("", context =>
                 {
