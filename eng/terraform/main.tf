@@ -122,6 +122,30 @@ resource "azurerm_app_service" "appservice" {
   }
 }
 
+resource "azurerm_application_insights_web_test" "healthcheck" {
+  name                    = "Health Check"
+  location                = azurerm_resource_group.rg.location
+  resource_group_name     = azurerm_resource_group.rg.name
+  application_insights_id = azurerm_application_insights.appinsights.id
+  kind                    = "ping"
+  frequency               = 300
+  timeout                 = 120
+  enabled                 = true
+  retry_enabled           = true
+  geo_locations           = ["emea-nl-ams-azr", "us-ca-sjc-azr", "emea-fr-pra-edge", "us-va-ash-azr"]
+
+  configuration = <<XML
+<WebTest Name="Health check" Id="9210f124-4e05-4d0f-9b68-bd89009785b7" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="120" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
+  <Items>
+    <Request Method="GET" Guid="a78f328b-5d76-957f-fe64-f72c316e51e2" Version="1.1" Url="https://${azurerm_app_service.appservice.default_site_hostname}/health" ThinkTime="0" Timeout="120" ParseDependentRequests="False" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
+  </Items>
+</WebTest>
+XML
+  tags = {
+    environment            = var.environment
+  }
+}
+
 output "apiapp_name" {
   value = azurerm_app_service.appservice.name
 }
