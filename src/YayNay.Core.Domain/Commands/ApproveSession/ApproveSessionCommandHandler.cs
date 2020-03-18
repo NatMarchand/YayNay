@@ -21,9 +21,9 @@ namespace NatMarchand.YayNay.Core.Domain.Commands.ApproveSession
         public async Task<(ICommandResult result, IReadOnlyList<IDomainEvent> events)> ExecuteAsync(ApproveSession command, CancellationToken cancellationToken = default)
         {
             var events = new List<IDomainEvent>();
-            if (!command.Approver.HasRight(UserRight.AcceptSession))
+            if (!command.Approver.HasRight(UserRight.ApproveSession))
             {
-                return (new DeniedCommandResult($"Right {nameof(UserRight.AcceptSession)} required"), DomainEvent.None);
+                return (new DeniedCommandResult($"Right {nameof(UserRight.ApproveSession)} required"), DomainEvent.None);
             }
 
             var session = await _sessionRepository.GetAsync(command.Session);

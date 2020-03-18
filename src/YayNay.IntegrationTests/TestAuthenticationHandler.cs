@@ -19,16 +19,16 @@ namespace NatMarchand.YayNay.IntegrationTests
     {
         private readonly IPersonProjectionStore _personProjectionStore;
         public static readonly string TestScheme = "test";
-        public static readonly string AdminToken = "adminToken";
         public static readonly string UserToken = "userToken";
-        public static readonly PersonId AdminPersonId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        public static readonly PersonId UserPersonId = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        public static readonly PersonId UserPersonId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
         public TestAuthenticationHandler(IPersonProjectionStore personProjectionStore, IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
             _personProjectionStore = personProjectionStore;
         }
+
+        
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -43,11 +43,8 @@ namespace NatMarchand.YayNay.IntegrationTests
             var token = m.Groups["token"].Value;
 
             PersonProfile? profile = null;
-            if (token.Equals(AdminToken, StringComparison.InvariantCultureIgnoreCase))
-            {
-                profile = await _personProjectionStore.GetProfileAsync(TestScheme, AdminPersonId.ToString());
-            }
-            else if (token.Equals(UserToken, StringComparison.InvariantCultureIgnoreCase))
+
+            if (token.Equals(UserToken, StringComparison.InvariantCultureIgnoreCase))
             {
                 profile = await _personProjectionStore.GetProfileAsync(TestScheme, UserPersonId.ToString());
             }

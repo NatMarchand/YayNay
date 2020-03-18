@@ -18,15 +18,17 @@ namespace NatMarchand.YayNay.Core.Domain.Queries.Person
 
     public class PersonProfile
     {
+        private readonly HashSet<UserRight> _rights;
+        
         public PersonId Id { get; }
         public string Name { get; }
-        public ISet<UserRight> Rights { get; }
+        public ICollection<UserRight> Rights => _rights;
 
         public PersonProfile(PersonId id, string name, IEnumerable<UserRight> rights)
         {
             Id = id;
             Name = name;
-            Rights=new HashSet<UserRight>(rights);
+            _rights = new HashSet<UserRight>(rights);
         }
 
         public bool HasRight(UserRight right)
@@ -37,6 +39,7 @@ namespace NatMarchand.YayNay.Core.Domain.Queries.Person
 
     public enum UserRight
     {
-        AcceptSession
+        ApproveSession,
+        ScheduleSession
     }
 }

@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 namespace NatMarchand.YayNay.IntegrationTests.Session
 {
     [Binding, Scope(Feature = "Get requested sessions")]
-    public class GetSessionsByStatusBindings : SessionBindings
+    public class GetRequestedSessionsBindings : SessionBindings
     {
-        public GetSessionsByStatusBindings(ITestOutputHelper testOutputHelper)
+        public GetRequestedSessionsBindings(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
         }

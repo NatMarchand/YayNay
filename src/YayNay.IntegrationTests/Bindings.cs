@@ -59,8 +59,7 @@ namespace NatMarchand.YayNay.IntegrationTests
         protected virtual void ConfigureTestServices(IServiceCollection services)
         {
             var personProjectionStore = new FakePersonProjectionStore();
-            personProjectionStore.AddPerson(TestAuthenticationHandler.UserPersonId, "John TheUser", false);
-            personProjectionStore.AddPerson(TestAuthenticationHandler.AdminPersonId, "Bob TheAdmin", true);
+            personProjectionStore.AddPerson(TestAuthenticationHandler.UserPersonId, "John TheUser");
             services.AddSingleton(personProjectionStore);
             services.AddTransient<IPersonProjectionStore>(p => p.GetRequiredService<FakePersonProjectionStore>());
 
@@ -68,6 +67,12 @@ namespace NatMarchand.YayNay.IntegrationTests
                 .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(TestAuthenticationHandler.TestScheme, o => { });
         }
 
+        [Given("user has right (.+)")]
+        public void GivenUserHasRight(UserRight right)
+        {
+            PersonProjectionStore.AddRight(TestAuthenticationHandler.UserPersonId, right);
+        }
+        
         [When("(GET|HEAD|POST|PUT|DELETE) to (.+)")]
         public void WhenCallingVerbToUri(string verb, string uri)
         {
@@ -81,14 +86,8 @@ namespace NatMarchand.YayNay.IntegrationTests
             _request.Headers.TryAddWithoutValidation(header, value);
         }
 
-        [When("authenticated as an admin")]
-        public void WhenAuthenticatedAsAnAdmin()
-        {
-            _request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {TestAuthenticationHandler.AdminToken}");
-        }
-
         [When("authenticated as a user")]
-        public void WhenAuthenticatedAsAUser()
+        public void WhenAuthenticatedAsUser()
         {
             _request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {TestAuthenticationHandler.UserToken}");
         }

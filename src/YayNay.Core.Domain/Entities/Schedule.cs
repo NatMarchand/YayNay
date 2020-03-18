@@ -22,17 +22,13 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
 
         public static Schedule? Create(DateTimeOffset? startTime, DateTimeOffset? endTime)
         {
-            switch (start: startTime, end: endTime)
+            return (start: startTime, end: endTime) switch
             {
-                case (null, null):
-                    return default;
-                case (null, _):
-                    throw new ArgumentNullException(nameof(startTime), "Start time cannot be null");
-                case (_, null):
-                    throw new ArgumentNullException(nameof(endTime), "End time cannot be null");
-            }
-
-            return new Schedule(startTime!.Value, endTime!.Value);
+                (null, null) => default,
+                (null, _) => throw new ArgumentNullException(nameof(startTime), "Start time cannot be null"),
+                (_, null) => throw new ArgumentNullException(nameof(endTime), "End time cannot be null"),
+                _ => new Schedule(startTime!.Value, endTime!.Value)
+            };
         }
 
         [ExcludeFromCodeCoverage]

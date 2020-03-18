@@ -13,6 +13,8 @@ namespace NatMarchand.YayNay.Core.Domain.Queries
             Values = values;
             Paging = paging;
         }
+        
+        public static readonly PagedList<T> Empty = new PagedList<T>(Array.Empty<T>()); 
     }
 
     public class Paging

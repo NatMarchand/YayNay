@@ -28,10 +28,16 @@ namespace NatMarchand.YayNay.Tests.Common.Fakes
             return Task.FromResult(_profiles.TryGetValue(Guid.Parse(providerId), out var profile) ? profile : default);
         }
 
-        public void AddPerson(PersonId id, string name, bool isAdmin = false)
+        public void AddPerson(PersonId id, string name)
         {
             _personNames.Add(id, new PersonName(id, name));
-            _profiles.Add(id, new PersonProfile(id, name, isAdmin ? Enum.GetValues(typeof(UserRight)).Cast<UserRight>() : Array.Empty<UserRight>()));
+            _profiles.Add(id, new PersonProfile(id, name, Array.Empty<UserRight>()));
+        }
+
+        public void AddRight(PersonId id, UserRight right)
+        {
+            var current = _profiles[id];
+            _profiles[id] = new PersonProfile(id, current.Name, current.Rights.Append(right));
         }
     }
 }

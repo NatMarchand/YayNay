@@ -71,7 +71,7 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = nameof(UserRight.AcceptSession))]
+        [Authorize(Roles = nameof(UserRight.ApproveSession))]
         public async Task<IActionResult> ApproveSessionAsync([FromServices] ApproveSessionCommandHandler commandHandler, [FromRoute] [Required] Guid sessionId, [FromBody] [Required] ApproveSessionModel approveSessionModel, CancellationToken cancellationToken)
         {
             var command = new ApproveSession(User.GetProfile()!, sessionId, approveSessionModel.IsApproved, approveSessionModel.Comment);

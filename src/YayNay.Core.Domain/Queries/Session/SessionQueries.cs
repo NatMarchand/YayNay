@@ -16,12 +16,13 @@ namespace NatMarchand.YayNay.Core.Domain.Queries.Session
 
         public async Task<PagedList<SessionProjection>> GetSessionsByStatusAsync(SessionStatus status, PersonProfile? requester)
         {
-            if (requester == null || !requester.HasRight(UserRight.AcceptSession))
+            return status switch
             {
-                return new PagedList<SessionProjection>(Array.Empty<SessionProjection>());
-            }
-
-            return await _sessionProjectionStore.GetSessionsAsync(status);
+                _ when requester == null => PagedList<SessionProjection>.Empty,
+                SessionStatus.Requested when requester.HasRight(UserRight.ApproveSession) => await _sessionProjectionStore.GetSessionsAsync(status),
+                SessionStatus.Approved when requester.HasRight(UserRight.ScheduleSession) => await _sessionProjectionStore.GetSessionsAsync(status),
+                _ => PagedList<SessionProjection>.Empty 
+            };
         }
     }
 }

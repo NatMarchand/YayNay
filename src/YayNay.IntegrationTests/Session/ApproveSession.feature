@@ -1,8 +1,10 @@
 ﻿Feature: Approve session
-  Scenario: Approve session when admin returns Accepted
+
+  Scenario: Approve session when has right returns Accepted
     Given a session entitled Something interesting with status Requested and id 3deb358c-d6e9-470c-bfd0-4d1499b34af9
+    And user has right ApproveSession
     When POST to sessions/3deb358c-d6e9-470c-bfd0-4d1499b34af9/approval
-    And authenticated as an admin
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -14,10 +16,11 @@
     And session store contains one entitled Something interesting
     And status is Approved
 
-  Scenario: Reject session when admin returns Accepted
+  Scenario: Reject session when has right returns Accepted
     Given a session entitled Something boring with status Requested and id bb1c3492-c46d-4790-9e3d-a8dadc30a44d
+    And user has right ApproveSession
     When POST to sessions/bb1c3492-c46d-4790-9e3d-a8dadc30a44d/approval
-    And authenticated as an admin
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -29,10 +32,11 @@
     And session store contains one entitled Something boring
     And status is Rejected
 
-  Scenario: Approve session when admin and session already approved returns BadRequest
+  Scenario: Approve session when has right and session already approved returns BadRequest
     Given a session entitled Something approved with status Approved and id 236686dd-a6a4-45eb-900d-6f3794177324
+    And user has right ApproveSession
     When POST to sessions/236686dd-a6a4-45eb-900d-6f3794177324/approval
-    And authenticated as an admin
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -52,10 +56,11 @@
 }
 """
 
-  Scenario: Reject session when admin and session already rejected returns BadRequest
+  Scenario: Reject session when has right and session already rejected returns BadRequest
     Given a session entitled Something approved with status Rejected and id 236686dd-a6a4-45eb-900d-6f3794177324
+    And user has right ApproveSession
     When POST to sessions/236686dd-a6a4-45eb-900d-6f3794177324/approval
-    And authenticated as an admin
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -75,9 +80,10 @@
 }
 """
 
-  Scenario: Approve session when admin and session does not exist returns NotFound
-    When POST to sessions/97714acc-5383-471b-8bb2-643ee4e37874/approval
-    And authenticated as an admin
+  Scenario: Approve session when has right and session does not exist returns NotFound
+    Given user has right ApproveSession
+    When POST to sessions/97714acc-5383-471b-8bb2-643ee4e37874/approval    
+    And authenticated as a user
     And content with type application/json
 """
 {
