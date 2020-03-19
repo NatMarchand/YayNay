@@ -1,5 +1,5 @@
 Feature: Get approved sessions
-  Scenario: Get approved sessions when admin and no session returns empty list
+  Scenario: Get approved sessions when no session returns empty list
     Given user has right ScheduleSession
     When GET to sessions?status=Approved
     And authenticated as a user
@@ -15,7 +15,7 @@ Feature: Get approved sessions
 }
 """
 
-  Scenario: Get approved sessions when admin and some sessions returns list
+  Scenario: Get approved sessions when some sessions returns list
     Given user has right ScheduleSession
     And a session entitled Session 1 with status Approved
     And a session entitled Session 2 with status Approved
@@ -72,7 +72,7 @@ Feature: Get approved sessions
 }
 """
 
-  Scenario: Get approved sessions when user returns empty list
+  Scenario: Get approved sessions when no right returns empty list
     When GET to sessions?status=Approved
     And authenticated as a user
     Then status code is OK

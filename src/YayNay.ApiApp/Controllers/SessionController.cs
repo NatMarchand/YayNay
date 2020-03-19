@@ -13,6 +13,7 @@ using NatMarchand.YayNay.ApiApp.Identity;
 using NatMarchand.YayNay.Core.Domain;
 using NatMarchand.YayNay.Core.Domain.Commands.ApproveSession;
 using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
+using NatMarchand.YayNay.Core.Domain.Commands.ScheduleSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Queries;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
@@ -45,6 +46,7 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public async Task<IActionResult> RequestSessionAsync([FromServices] RequestSessionCommandHandler handler, [FromBody] RequestSessionModel requestSessionModel, CancellationToken cancellationToken)
         {
             var command = new RequestSession(
@@ -74,7 +76,27 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
         [Authorize(Roles = nameof(UserRight.ApproveSession))]
         public async Task<IActionResult> ApproveSessionAsync([FromServices] ApproveSessionCommandHandler commandHandler, [FromRoute] [Required] Guid sessionId, [FromBody] [Required] ApproveSessionModel approveSessionModel, CancellationToken cancellationToken)
         {
-            var command = new ApproveSession(User.GetProfile()!, sessionId, approveSessionModel.IsApproved, approveSessionModel.Comment);
+            var command = new ApproveSession(sessionId, User.GetProfile()!, approveSessionModel.IsApproved, approveSessionModel.Comment);
+            var (result, events) = await commandHandler.ExecuteAsync(command, cancellationToken);
+            await _eventDispatcher.DispatchAsync(events);
+            
+            return result switch
+            {
+                SuccessCommandResult scr => Accepted(),
+                NotFoundCommandResult nfcr => Problem(statusCode: StatusCodes.Status404NotFound, detail:nfcr.Reason),
+                ValidationFailureCommandResult vfcr => this.ValidationProblem(vfcr),
+                _ => Problem()
+            };
+        }
+        
+        [HttpPost("{sessionId}/schedule")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = nameof(UserRight.ScheduleSession))]
+        public async Task<IActionResult> ScheduleSessionAsync([FromServices] ScheduleSessionCommandHandler commandHandler, [FromRoute] [Required] Guid sessionId, [FromBody] [Required] ScheduleSessionModel scheduleSessionModel, CancellationToken cancellationToken)
+        {
+            var command = new ScheduleSession(sessionId, User.GetProfile()!, scheduleSessionModel.StartTime, scheduleSessionModel.EndTime);
             var (result, events) = await commandHandler.ExecuteAsync(command, cancellationToken);
             await _eventDispatcher.DispatchAsync(events);
             
@@ -108,6 +130,13 @@ namespace NatMarchand.YayNay.ApiApp.Controllers
 
         [Required] public IEnumerable<string> Tags { get; set; }
 
+        public DateTimeOffset? StartTime { get; set; }
+
+        public DateTimeOffset? EndTime { get; set; }
+    }
+
+    public class ScheduleSessionModel
+    {
         public DateTimeOffset? StartTime { get; set; }
 
         public DateTimeOffset? EndTime { get; set; }

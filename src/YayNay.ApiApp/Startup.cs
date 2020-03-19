@@ -12,6 +12,7 @@ using NatMarchand.YayNay.ApiApp.Converters;
 using NatMarchand.YayNay.ApiApp.Identity;
 using NatMarchand.YayNay.Core.Domain.Commands.ApproveSession;
 using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
+using NatMarchand.YayNay.Core.Domain.Commands.ScheduleSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
 using NatMarchand.YayNay.Core.Domain.Infrastructure;
@@ -28,11 +29,13 @@ namespace NatMarchand.YayNay.ApiApp
         {
             services.AddTransient<RequestSessionCommandHandler>();
             services.AddTransient<ApproveSessionCommandHandler>();
+            services.AddTransient<ScheduleSessionCommandHandler>();
             
             services.AddTransient<EventDispatcher>();
             services.AddTransient<IEventProcessor<SessionRequested>, ProjectSession>();
             services.AddTransient<IEventProcessor<SessionApproved>, ProjectSession>();
             services.AddTransient<IEventProcessor<SessionRejected>, ProjectSession>();
+            services.AddTransient<IEventProcessor<SessionScheduled>, ProjectSession>();
             
             services.AddTransient<ISessionRepository, a>();
             services.AddTransient<IPersonProjectionStore, a>();

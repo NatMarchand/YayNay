@@ -19,7 +19,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var existingSession = new Session(SessionId.New(), Array.Empty<PersonId>(), "title", "description", Array.Empty<string>(), default, SessionStatus.Requested);
             var sessionStore = new FakeSessionStore();
             sessionStore.AddSession(existingSession);
-            var command = new ApproveSession(new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), existingSession.Id, true, "hi");
+            var command = new ApproveSession(existingSession.Id, new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), true, "hi");
             var sut = new ApproveSessionCommandHandler(sessionStore);
             var (result, events) = await sut.ExecuteAsync(command);
             Check.That(result).InheritsFrom<SuccessCommandResult>();
@@ -36,7 +36,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var existingSession = new Session(SessionId.New(), Array.Empty<PersonId>(), "title", "description", Array.Empty<string>(), default, SessionStatus.Requested);
             var sessionStore = new FakeSessionStore();
             sessionStore.AddSession(existingSession);
-            var command = new ApproveSession(new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), existingSession.Id, false, "hi");
+            var command = new ApproveSession(existingSession.Id, new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), false, "hi");
             var sut = new ApproveSessionCommandHandler(sessionStore);
             var (result, events) = await sut.ExecuteAsync(command);
             Check.That(result).InheritsFrom<SuccessCommandResult>();
@@ -53,7 +53,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var existingSession = new Session(SessionId.New(), Array.Empty<PersonId>(), "title", "description", Array.Empty<string>(), default, SessionStatus.Approved);
             var sessionStore = new FakeSessionStore();
             sessionStore.AddSession(existingSession);
-            var command = new ApproveSession(new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), existingSession.Id, true, "hi");
+            var command = new ApproveSession(existingSession.Id, new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), true, "hi");
             var sut = new ApproveSessionCommandHandler(sessionStore);
             var (result, events) = await sut.ExecuteAsync(command);
             Check.That(result).InheritsFrom<ValidationFailureCommandResult>();
@@ -66,7 +66,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
             var existingSession = new Session(SessionId.New(), Array.Empty<PersonId>(), "title", "description", Array.Empty<string>(), default, SessionStatus.Rejected);
             var sessionStore = new FakeSessionStore();
             sessionStore.AddSession(existingSession);
-            var command = new ApproveSession(new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), existingSession.Id, false, "hi");
+            var command = new ApproveSession(existingSession.Id, new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), false, "hi");
             var sut = new ApproveSessionCommandHandler(sessionStore);
             var (result, events) = await sut.ExecuteAsync(command);
             Check.That(result).InheritsFrom<ValidationFailureCommandResult>();
@@ -77,7 +77,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
         public async Task CheckThat_ApprovingNotExistingSession_IsNotFoundFailure()
         {
             var sessionStore = new FakeSessionStore();
-            var command = new ApproveSession(new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), SessionId.New(), true, "hi");
+            var command = new ApproveSession(SessionId.New(), new PersonProfile(PersonId.New(), "toto", new[] { UserRight.ApproveSession }), true, "hi");
             var sut = new ApproveSessionCommandHandler(sessionStore);
             var (result, events) = await sut.ExecuteAsync(command);
             Check.That(result).InheritsFrom<NotFoundCommandResult>();
@@ -88,7 +88,7 @@ namespace NatMarchand.YayNay.Core.UnitTests.Commands
         public async Task CheckThat_ApprovingWithNotTheRight_IsDeniedFailure()
         {
             var sessionStore = new FakeSessionStore();
-            var command = new ApproveSession(new PersonProfile(PersonId.New(), "toto", new UserRight[0]), SessionId.New(), true, "hi");
+            var command = new ApproveSession(SessionId.New(), new PersonProfile(PersonId.New(), "toto", new UserRight[0]), true, "hi");
             var sut = new ApproveSessionCommandHandler(sessionStore);
             var (result, events) = await sut.ExecuteAsync(command);
             Check.That(result).InheritsFrom<DeniedCommandResult>();

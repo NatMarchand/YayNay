@@ -31,4 +31,16 @@ namespace NatMarchand.YayNay.Core.Domain.Events
             Id = id;
         }
     }
+    
+    public class SessionScheduled : IDomainEvent
+    {
+        public SessionId Id { get; }
+        public Schedule Schedule { get; }
+
+        public SessionScheduled(SessionId id, Schedule schedule)
+        {
+            Id = id;
+            Schedule = schedule;
+        }
+    }
 }

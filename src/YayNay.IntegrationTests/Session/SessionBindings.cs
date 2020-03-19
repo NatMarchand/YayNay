@@ -38,11 +38,18 @@ namespace NatMarchand.YayNay.IntegrationTests.Session
             var session = new Core.Domain.Entities.Session(SessionId.New(), Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), default, status);
             SessionStore.AddSession(session);
         }
-        
-        [Given("a session entitled (.+) with status (.+) and id (.+)")]
+
+        [Given("a session entitled (.+) with status (.+) and id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")]
         public void GivenSession(string title, SessionStatus status, Guid id)
         {
             var session = new Core.Domain.Entities.Session(id, Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), default, status);
+            SessionStore.AddSession(session);
+        }
+
+        [Given("a session entitled (.+) with status (.+) and id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}) between (.+) and (.+)")]
+        public void GivenSession(string title, SessionStatus status, Guid id, DateTimeOffset startTime, DateTimeOffset endTime)
+        {
+            var session = new Core.Domain.Entities.Session(id, Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), Schedule.Create(startTime, endTime), status);
             SessionStore.AddSession(session);
         }
     }

@@ -10,7 +10,7 @@ using NatMarchand.YayNay.Core.Domain.Queries.Session;
 
 namespace NatMarchand.YayNay.Core.Infrastructure.Events
 {
-    public class ProjectSession : IEventProcessor<SessionRequested>, IEventProcessor<SessionApproved>, IEventProcessor<SessionRejected>
+    public class ProjectSession : IEventProcessor<SessionRequested>, IEventProcessor<SessionApproved>, IEventProcessor<SessionRejected>, IEventProcessor<SessionScheduled>
     {
         private readonly ILogger<ProjectSession> _logger;
         private readonly ISessionRepository _sessionRepository;
@@ -40,6 +40,12 @@ namespace NatMarchand.YayNay.Core.Infrastructure.Events
         public async Task DispatchAsync(SessionRejected domainEvent)
         {
             _logger.LogInformation($"Session rejected {domainEvent.Id}");
+            await ProjectAsync(domainEvent.Id);
+        }
+
+        public async Task DispatchAsync(SessionScheduled domainEvent)
+        {
+            _logger.LogInformation($"Session scheduled {domainEvent.Id}");
             await ProjectAsync(domainEvent.Id);
         }
 

@@ -1,5 +1,5 @@
 ﻿Feature: Get requested sessions
-  Scenario: Get requested sessions when admin and no session returns empty list
+  Scenario: Get requested sessions when no session returns empty list
     Given user has right ApproveSession
     When GET to sessions?status=Requested
     And authenticated as a user
@@ -15,7 +15,7 @@
 }
 """
 
-  Scenario: Get requested sessions when admin and some sessions returns list
+  Scenario: Get requested sessions when some sessions returns list
     Given user has right ApproveSession
     And a session entitled Session 1 with status Requested
     And a session entitled Session 2 with status Requested
@@ -72,7 +72,7 @@
 }
 """
 
-  Scenario: Get requested sessions when user returns empty list
+  Scenario: Get requested sessions when no right returns empty list
     When GET to sessions?status=Requested
     And authenticated as a user
     Then status code is OK

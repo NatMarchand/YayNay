@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.2"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0"/>
-    <PackageReference Include="xunit" Version="2.4.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,20 +18,20 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NFluent" Version="2.7.0"/>
-    <PackageReference Include="SpecFlow" Version="3.1.86"/>
-    <PackageReference Include="SpecFlow.xUnit" Version="3.1.86"/>
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.86"/>
+    <PackageReference Include="NFluent" Version="2.7.0" />
+    <PackageReference Include="SpecFlow" Version="3.1.86" />
+    <PackageReference Include="SpecFlow.xUnit" Version="3.1.86" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.86" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YayNay.ApiApp\YayNay.ApiApp.csproj"/>
-    <ProjectReference Include="..\YayNay.Tests.Common\YayNay.Tests.Common.csproj"/>
+    <ProjectReference Include="..\YayNay.ApiApp\YayNay.ApiApp.csproj" />
+    <ProjectReference Include="..\YayNay.Tests.Common\YayNay.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
 
-    <None Include="**\*.feature"/>
+    <None Include="**\*.feature" />
     <Compile Update="Session\ApproveSession.bindings.cs">
       <DependentUpon>ApproveSession.feature</DependentUpon>
     </Compile>
@@ -55,6 +55,12 @@
     </Compile>
     <Compile Update="Session\RequestSession.feature.cs">
       <DependentUpon>RequestSession.feature</DependentUpon>
+    </Compile>
+    <Compile Update="Session\ScheduleSession.bindings.cs">
+      <DependentUpon>ScheduleSession.feature</DependentUpon>
+    </Compile>
+    <Compile Update="Session\ScheduleSession.feature.cs">
+      <DependentUpon>ScheduleSession.feature</DependentUpon>
     </Compile>
 
 

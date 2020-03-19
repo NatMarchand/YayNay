@@ -6,6 +6,7 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
     {
         Requested,
         Approved,
-        Rejected
+        Rejected,
+        Scheduled
     }
 }

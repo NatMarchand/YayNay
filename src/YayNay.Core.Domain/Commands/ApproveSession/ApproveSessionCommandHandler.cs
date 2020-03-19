@@ -63,7 +63,7 @@ namespace NatMarchand.YayNay.Core.Domain.Commands.ApproveSession
         public bool IsApproved { get; }
         public string Comment { get; }
 
-        public ApproveSession(PersonProfile approver, SessionId session, bool isApproved, string comment)
+        public ApproveSession(SessionId session, PersonProfile approver, bool isApproved, string comment)
         {
             Approver = approver;
             Session = session;

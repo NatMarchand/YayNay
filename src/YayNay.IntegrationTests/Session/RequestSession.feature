@@ -1,6 +1,7 @@
 ﻿Feature: Request session
-  Scenario: Request session with no schedule returns Accepted
+  Scenario: Requesting session with no schedule returns Accepted
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -22,9 +23,10 @@
     And speakers are
     And status is Requested
 
-  Scenario: Request session with schedule returns Accepted
+  Scenario: Requesting session with schedule returns Accepted
     Given person 10000000-0000-0000-0000-000000000001 named John Doe
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -48,8 +50,9 @@
     And speakers are 00000000-0000-0000-0000-000000000001
     And status is Requested
 
-  Scenario: Request session with unknown speaker returns BadRequest
+  Scenario: Requesting session with unknown speaker returns BadRequest
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -79,8 +82,9 @@
 """
     And session store is empty
 
-  Scenario: Request session with no startTime returns BadRequest
+  Scenario: Requesting session with no startTime returns BadRequest
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -109,8 +113,9 @@
 """
     And session store is empty
 
-  Scenario: Request session with no endTime returns BadRequest
+  Scenario: Requesting session with no endTime returns BadRequest
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -139,8 +144,9 @@
 """
     And session store is empty
 
-  Scenario: Request session with startTime after endTime returns BadRequest
+  Scenario: Requesting session with startTime after endTime returns BadRequest
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {
@@ -170,8 +176,9 @@
 """
     And session store is empty
 
-  Scenario: Request session with empty json returns BadRequest
+  Scenario: Requesting session with empty json returns BadRequest
     When POST to sessions/request
+    And authenticated as a user
     And content with type application/json
 """
 {}
@@ -201,3 +208,18 @@
 }
 """
     And session store is empty
+
+  Scenario: Requesting session when not authenticated returns Unauthorized
+    When POST to sessions/request
+    And content with type application/json
+"""
+{
+  "speakers": [],
+  "tags": [],
+  "title": "My awesome session",
+  "description": "This session is going to be awe-wait for it-some... Awesome!",
+  "startTime": "2020-03-03T01:00:00.000",
+  "endTime": "2020-03-03T00:00:00.000"
+}
+"""
+    Then status code is Unauthorized
