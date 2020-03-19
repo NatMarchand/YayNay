@@ -4,10 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
-using NatMarchand.YayNay.Core.Domain.Infrastructure;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Events;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Infrastructure;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
-namespace NatMarchand.YayNay.Core.Domain.Commands.ApproveSession
+namespace NatMarchand.YayNay.Core.Domain.PlanningContext.Commands.ApproveSession
 {
     public class ApproveSessionCommandHandler : ICommandHandler<ApproveSession>
     {

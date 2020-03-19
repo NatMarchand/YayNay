@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
 namespace NatMarchand.YayNay.Core.Domain.Queries.Session
@@ -16,13 +17,15 @@ namespace NatMarchand.YayNay.Core.Domain.Queries.Session
 
         public async Task<PagedList<SessionProjection>> GetSessionsByStatusAsync(SessionStatus status, PersonProfile? requester)
         {
-            return status switch
+            switch (status)
             {
-                _ when requester == null => PagedList<SessionProjection>.Empty,
-                SessionStatus.Requested when requester.HasRight(UserRight.ApproveSession) => await _sessionProjectionStore.GetSessionsAsync(status),
-                SessionStatus.Approved when requester.HasRight(UserRight.ScheduleSession) => await _sessionProjectionStore.GetSessionsAsync(status),
-                _ => PagedList<SessionProjection>.Empty 
-            };
+                case SessionStatus.Requested when requester?.HasRight(UserRight.ApproveSession) == true:
+                case SessionStatus.Approved when requester?.HasRight(UserRight.ScheduleSession) == true:
+                case SessionStatus.Scheduled:
+                    return await _sessionProjectionStore.GetSessionsAsync(status);
+                default:
+                    return PagedList<SessionProjection>.Empty;
+            }
         }
     }
 }

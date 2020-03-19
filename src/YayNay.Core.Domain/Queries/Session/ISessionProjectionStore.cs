@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
 
 namespace NatMarchand.YayNay.Core.Domain.Queries.Session
 {

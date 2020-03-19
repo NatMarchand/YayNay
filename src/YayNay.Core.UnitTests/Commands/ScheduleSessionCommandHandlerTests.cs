@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain;
-using NatMarchand.YayNay.Core.Domain.Commands.ScheduleSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Commands.ScheduleSession;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Events;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 using NatMarchand.YayNay.Tests.Common.Fakes;
 using NFluent;

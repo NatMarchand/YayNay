@@ -4,10 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
-using NatMarchand.YayNay.Core.Domain.Infrastructure;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Events;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Infrastructure;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
-namespace NatMarchand.YayNay.Core.Domain.Commands.ScheduleSession
+namespace NatMarchand.YayNay.Core.Domain.PlanningContext.Commands.ScheduleSession
 {
     public class ScheduleSessionCommandHandler : ICommandHandler<ScheduleSession>
     {
@@ -48,7 +50,7 @@ namespace NatMarchand.YayNay.Core.Domain.Commands.ScheduleSession
             try
             {
                 session.SetSchedule(schedule);
-                events.Add(new SessionScheduled(session.Id, session.Schedule!));
+                events.Add(new SessionScheduled(session.Id));
             }
             catch (NotSupportedException e)
             {

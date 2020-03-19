@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain;
-using NatMarchand.YayNay.Core.Domain.Commands.RequestSession;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Commands.RequestSession;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Events;
 using NatMarchand.YayNay.Tests.Common.Fakes;
 using NFluent;
 using Xunit;

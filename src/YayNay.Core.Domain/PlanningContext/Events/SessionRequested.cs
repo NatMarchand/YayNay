@@ -1,6 +1,8 @@
-﻿using NatMarchand.YayNay.Core.Domain.Entities;
+﻿using System;
+using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.Events;
 
-namespace NatMarchand.YayNay.Core.Domain.Events
+namespace NatMarchand.YayNay.Core.Domain.PlanningContext.Events
 {
     public class SessionRequested : IDomainEvent
     {
@@ -35,12 +37,10 @@ namespace NatMarchand.YayNay.Core.Domain.Events
     public class SessionScheduled : IDomainEvent
     {
         public SessionId Id { get; }
-        public Schedule Schedule { get; }
 
-        public SessionScheduled(SessionId id, Schedule schedule)
+        public SessionScheduled(SessionId id)
         {
             Id = id;
-            Schedule = schedule;
         }
     }
 }

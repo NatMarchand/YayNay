@@ -78,6 +78,35 @@ Feature: Schedule session
 }
 """
 
+  Scenario: Scheduling session with invalid schedule returns BadRequest
+    Given a session entitled My awesome session with status Approved and id 236686dd-a6a4-45eb-900d-6f3794177324
+    And user has right ScheduleSession
+    When POST to sessions/236686dd-a6a4-45eb-900d-6f3794177324/schedule
+    And authenticated as a user
+    And content with type application/json
+"""
+{
+  "startTime": "2020-01-02T01:00:00",
+  "endTime": "2020-01-02T00:00:00"
+}
+"""
+    Then status code is BadRequest
+    And content matches
+"""
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Schedule is invalid: End time cannot be before start time (Parameter 'endTime').",
+  "traceId": "*",
+  "errors": {
+    "endTime": [
+      "End time cannot be before start time (Parameter 'endTime')"
+    ]
+  }
+}
+"""
+
   Scenario: Rescheduling session without schedule returns BadRequest
     Given a session entitled My awesome session with status Scheduled and id 236686dd-a6a4-45eb-900d-6f3794177324
     And user has right ScheduleSession

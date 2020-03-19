@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
+using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
-namespace NatMarchand.YayNay.Core.Domain.Entities
+namespace NatMarchand.YayNay.Core.Domain.PlanningContext.Entities
 {
     public class Session
     {
@@ -69,31 +68,5 @@ namespace NatMarchand.YayNay.Core.Domain.Entities
             Schedule = schedule;
             Status = SessionStatus.Scheduled;
         }
-    }
-
-    [ExcludeFromCodeCoverage]
-    [TypeConverter(typeof(IdTypeConverter<SessionId>))]
-    public class SessionId : Id
-    {
-        private SessionId(Guid value)
-            : base(value)
-        {
-        }
-
-        public static implicit operator SessionId(Guid id) => new SessionId(id);
-        public static SessionId New() => new SessionId(Guid.NewGuid());
-    }
-
-    [ExcludeFromCodeCoverage]
-    [TypeConverter(typeof(IdTypeConverter<PersonId>))]
-    public class PersonId : Id
-    {
-        private PersonId(Guid value)
-            : base(value)
-        {
-        }
-
-        public static implicit operator PersonId(Guid id) => new PersonId(id);
-        public static PersonId New() => new PersonId(Guid.NewGuid());
     }
 }

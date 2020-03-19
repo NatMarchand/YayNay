@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
 
-namespace NatMarchand.YayNay.Core.Domain.Infrastructure
+namespace NatMarchand.YayNay.Core.Domain.PlanningContext.Infrastructure
 {
     public interface ISessionRepository
     {

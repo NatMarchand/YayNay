@@ -2,7 +2,8 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NatMarchand.YayNay.Core.Domain.Entities;
-using NatMarchand.YayNay.Core.Domain.Infrastructure;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Infrastructure;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 using NatMarchand.YayNay.Core.Domain.Queries.Session;
 using NatMarchand.YayNay.Tests.Common.Fakes;
@@ -35,28 +36,28 @@ namespace NatMarchand.YayNay.IntegrationTests.Session
         [Given("a session entitled (.+) with status (.+)")]
         public void GivenSession(string title, SessionStatus status)
         {
-            var session = new Core.Domain.Entities.Session(SessionId.New(), Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), default, status);
+            var session = new Core.Domain.PlanningContext.Entities.Session(SessionId.New(), Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), default, status);
             SessionStore.AddSession(session);
         }
 
         [Given("a session entitled (.+) with status (.+) and id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")]
         public void GivenSession(string title, SessionStatus status, Guid id)
         {
-            var session = new Core.Domain.Entities.Session(id, Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), default, status);
+            var session = new Core.Domain.PlanningContext.Entities.Session(id, Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), default, status);
             SessionStore.AddSession(session);
         }
 
         [Given("a session entitled (.+) with status (.+) and id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}) between (.+) and (.+)")]
         public void GivenSession(string title, SessionStatus status, Guid id, DateTimeOffset startTime, DateTimeOffset endTime)
         {
-            var session = new Core.Domain.Entities.Session(id, Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), Schedule.Create(startTime, endTime), status);
+            var session = new Core.Domain.PlanningContext.Entities.Session(id, Array.Empty<PersonId>(), title, string.Empty, Array.Empty<string>(), Schedule.Create(startTime, endTime), status);
             SessionStore.AddSession(session);
         }
     }
 
     public abstract class SessionCommandBindings : SessionBindings
     {
-        protected Core.Domain.Entities.Session Session { get; private set; }
+        protected Core.Domain.PlanningContext.Entities.Session Session { get; private set; }
         protected SessionProjection SessionProjection { get; private set; }
 
         protected SessionCommandBindings(ITestOutputHelper testOutputHelper)

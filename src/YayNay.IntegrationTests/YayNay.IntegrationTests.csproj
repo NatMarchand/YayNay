@@ -50,6 +50,12 @@
     <Compile Update="Session\GetRequestedSessions.feature.cs">
       <DependentUpon>GetRequestedSessions.feature</DependentUpon>
     </Compile>
+    <Compile Update="Session\GetScheduledSessions.bindings.cs">
+      <DependentUpon>GetScheduledSessions.feature</DependentUpon>
+    </Compile>
+    <Compile Update="Session\GetScheduledSessions.feature.cs">
+      <DependentUpon>GetScheduledSessions.feature</DependentUpon>
+    </Compile>
     <Compile Update="Session\RequestSession.bindings.cs">
       <DependentUpon>RequestSession.feature</DependentUpon>
     </Compile>

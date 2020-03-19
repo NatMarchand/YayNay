@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 
 namespace NatMarchand.YayNay.Core.Domain.Queries.Session

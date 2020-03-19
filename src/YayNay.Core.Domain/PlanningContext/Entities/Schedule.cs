@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace NatMarchand.YayNay.Core.Domain.Entities
+namespace NatMarchand.YayNay.Core.Domain.PlanningContext.Entities
 {
     public sealed class Schedule : IEquatable<Schedule>
     {

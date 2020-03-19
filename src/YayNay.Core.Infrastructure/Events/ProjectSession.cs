@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NatMarchand.YayNay.Core.Domain.Entities;
 using NatMarchand.YayNay.Core.Domain.Events;
-using NatMarchand.YayNay.Core.Domain.Infrastructure;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Events;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Infrastructure;
 using NatMarchand.YayNay.Core.Domain.Queries.Person;
 using NatMarchand.YayNay.Core.Domain.Queries.Session;
 

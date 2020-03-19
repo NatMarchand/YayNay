@@ -1,5 +1,6 @@
 using System;
 using NatMarchand.YayNay.Core.Domain.Entities;
+using NatMarchand.YayNay.Core.Domain.PlanningContext.Entities;
 using NFluent;
 using Xunit;
 
