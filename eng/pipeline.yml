@@ -95,7 +95,7 @@ stages:
           command: custom
           projects: '$(solution)'
           custom: 'restore'
-          arguments: '--runtime $(runtime) --verbosity normal --packages $(NUGET_PACKAGES) --ignore-failed-sources -p:EnableDefaultItems=false -p:Version=$(Version.Full)'
+          arguments: '--runtime $(runtime) --verbosity minimal --packages $(NUGET_PACKAGES) --ignore-failed-sources -p:EnableDefaultItems=false -p:Version=$(Version.Full)'
 
       - task: DotNetCoreCLI@2
         displayName: 'Build projects'
